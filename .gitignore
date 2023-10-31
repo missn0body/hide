@@ -1,4 +1,8 @@
 # ignore the license, it's a one-time copy and paste deal
 LICENSE
 
+# ignore everything in the binary and object directories
+bin/*
+obj/*
+
 # everything else is fair game wheeeeeeeeeeeeeee
