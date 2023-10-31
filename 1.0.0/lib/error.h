@@ -10,32 +10,21 @@
 // booleans (bits) to be raised or lowered
 static flag_t status = 0;
 
-// Array of error messages
-const char *errorMes[] =
-{
-	"too few arguments",
-	"unknown option"
-};
-
-// Quick mnemonics for indexing the above array.
-enum
-{
-	ARG = 0,
-	UNK
-};
-
 // This function is not meant to be called directly, unless you
 // want to provide a file and line number directly instead of
 // nifty GCC extensions.
-[[ __noreturn__ ]] void _error(char *file, int line, int index, flag_t *status)
+[[ __noreturn__ ]] void _error(char *file, int line, const char *mes, flag_t *status)
 {
-        if(test(*status, ANSI))	fprintf(stderr, "%s(%s:%d)%s %s\n", RED, file, line, RESET, errorMes[index]);
-        else                    fprintf(stderr, "(%s:%d) %s\n", file, line, errorMes[index]);
+        if(test(*status, ANSI))	fprintf(stderr, "%s(%s:%d)%s %s\n", RED, file, line, RESET, mes);
+        else                    fprintf(stderr, "(%s:%d) %s\n", file, line, mes);
 	exit(EXIT_FAILURE);
 }
 
 // Rather I prefer you call this, unless you can't.
-#define error(x)        _error(__FILE__, __LINE__, x, &status)
-#define alert(x, ...)   fprintf(stderr, "%s%s%s\n", red_if_color(x), __VA_ARGS__, reset_if_color(x))
+#define error(x)	_error(__FILE__, __LINE__, x, &status)
+#define alert(x, ...)  	fprintf(stderr, "%s%s%s\n", red_if_color(x), __VA_ARGS__, reset_if_color(x))
+
+// My own assert function, because assert.h was too much for me
+#define assert(x, y)	if(!(x)) { error(y); }
 
 #endif
