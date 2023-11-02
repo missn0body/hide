@@ -21,10 +21,10 @@ static flag_t status = 0;
 }
 
 // Rather I prefer you call this, unless you can't.
-#define error(x)	_error(__FILE__, __LINE__, x, &status)
-#define alert(x, ...)  	fprintf(stderr, "%s%s%s\n", red_if_color(x), __VA_ARGS__, reset_if_color(x))
+#define _Error(x)	_error(__FILE__, __LINE__, x, &status)
+#define _Alert(x, ...)  fprintf(stderr, "%s%s%s\n", red_if_color(x), __VA_ARGS__, reset_if_color(x))
 
 // My own assert function, because assert.h was too much for me
-#define assert(x, y)	if(!(x)) { error(y); }
+#define _Assert(x, y)	if(!(x)) { _Error(y); }
 
 #endif
