@@ -19,6 +19,15 @@
 // For less complicated-looking code
 typedef uint32_t u32;
 
+/*
+struct blowfish_cipher_context
+{
+	u32 subbox[SUBBOX_FIRST_DIM][SUBBOX_SECOND_DIM];
+	u32 permbox[PERMBOX_COUNT];
+	// TODO: finish this
+};
+*/
+
 static u32 subbox[SUBBOX_FIRST_DIM][SUBBOX_SECOND_DIM] =
 {
 	// subbox[0]
@@ -218,7 +227,7 @@ static inline void swap(u32 *x, u32 *y)
 // accepts 8-bit input and returns 32-bit output
 // (it is essentially a lookup table, after all)
 static inline u32 feistel(u32 x)
-{
+{	/*
 	unsigned short a, b, c, d;
    	unsigned long  y;
 
@@ -234,6 +243,10 @@ static inline u32 feistel(u32 x)
    	y = y + subbox[3][d];
 
 	return y;
+	*/
+
+	uint32_t temp = subbox[0][x >> 24] + subbox[1][x >> 16 & 0xff];
+   	return ( temp ^ subbox[2][x >> 8 & 0xff] ) + subbox[3][x & 0xff];
 }
 
 void blowfish_encrypt	(u32 *left, u32 *right);
