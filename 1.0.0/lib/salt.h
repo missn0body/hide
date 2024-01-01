@@ -3,7 +3,11 @@
 
 #include "includes.h"
 
-void rot47	(char *input, int length);
+// don't mind me, just stirin'...
+// watch the pot while i'm out, m'kay?
+
+void rot47	(char *base, int length);
+void stirin	(char *dest, char* sub, int index);
 char *stirfry	(char *base, int length);
 char *salter	(char *base, int length);
 

@@ -1,13 +1,13 @@
 #include "../lib/salt.h"
 
 // Based off of the basic design from rot47.net
-void rot47(char *input, int length)
+void rot47(char *base, int length)
 {
 	for(int i = 0; i < length; i++)
 	{
-		if(isprint(input[i]))
+		if(isprint(base[i]))
 		{
-			input[i] = 33 + ((input[i] + 14) % 94);
+			base[i] = 33 + ((base[i] + 14) % 94);
 		}
 	}
 }
@@ -36,7 +36,30 @@ char *stirfry(char *base, int length)
 	return returnValue;
 }
 
-// TODO: fix bugs with calculating halves of strings
+// Like stirfry, but insertion, unrelated to stirin' a pot
+void stirin(char *dest, char *sub, int index)
+{
+	// Lengths of both strings plus one
+	unsigned length = (strlen(dest) + strlen(sub) + 1);
+	char *buf = calloc(length, sizeof(char));
+	if(buf == nullptr) return;
+
+	// Input the first part, up to where the substring begins
+	strncpy(buf, dest, index);
+	// So that strcat plays correctly
+	buf[index] = '\0';
+	// Input substring, then rest of first string
+	strcat(buf, sub);
+	strcat(buf, dest + index);
+	// I'm not actually sure if strcat() inputs a terminator so
+	// put this here just in case :)
+	buf[length - 1] = '\0';
+
+	// Copy the destination string
+	strcpy(dest, buf);
+	return;
+}
+
 char *salter(char *base, int length)
 {
 	char *returnValue = calloc(length + 1, sizeof(char));
@@ -55,6 +78,17 @@ char *salter(char *base, int length)
 	rot47(secondHalf, strlen(secondHalf));
 	memcpy(returnValue + half, secondHalf, half + remain);
 
+	// Fill in the rest of the string with random garblely gooks
+	// (length + 1) - strlen(returnValue + (half * 2)) being the
+	// exact length of string that is currently empty
+	char *startingPoint = returnValue + (half * 2);
+	for(size_t i = 0; i < (length + 1) - strlen(returnValue + (half * 2)); i++)
+	{
+		// secret message, mwuhahahaha~
+		*(startingPoint + i) = "1noitacavylimaf-reficulfotsen"[i % 13];
+	}
+
+	rot47(returnValue + (half * 2), strlen(returnValue + (half * 2)));
 	returnValue[length - 1] = '\0';
 	return returnValue;
 }
