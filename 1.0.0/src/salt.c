@@ -60,6 +60,29 @@ void stirin(char *dest, char *sub, int index)
 	return;
 }
 
+char *saltext(char *base, int width)
+{
+	// GCC complains about the length of the format string, so
+	// lets allocate for the worst case scenario
+	char format[28];
+        int pos = 0, len = 0;
+
+	// This function assumes that the 'width' variable given
+	// is the total prefix length, whats added to the beginning
+	// of the 'base'
+        sprintf(format, "%%%dd%%%dd", width / 2, width / 2);
+	// Dynamically making a format string to pass to sscanf, since
+        // sscanf does not support variable length widths
+        sscanf(base, format, &pos, &len);
+
+	char *returnValue = malloc(len + 1);
+	if(returnValue == nullptr) return nullptr;
+
+        strncpy(returnValue, base + pos + width, len);
+	returnValue[len] = '\0';
+	return returnValue;
+}
+
 char *salter(char *base, int length)
 {
 	char *returnValue = calloc(length + 1, sizeof(char));

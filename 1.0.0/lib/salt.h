@@ -9,6 +9,7 @@
 void rot47	(char *base, int length);
 void stirin	(char *dest, char* sub, int index);
 char *stirfry	(char *base, int length);
+char *saltext	(char *base, int width);
 char *salter	(char *base, int length);
 
 #endif
