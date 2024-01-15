@@ -9,6 +9,11 @@
 // in stdint.h's typedefs.
 typedef uint8_t flag_t;
 
+// These are seperate typedefs that the Blowfish algorithm
+// uses quite a lot, so these smaller names save a little time.
+typedef uint16_t u16;
+typedef uint32_t u32;
+
 // Shorthands for setting bits in a flag typedef
 #define setbit(x, y)   	((x) |= (y))
 #define unsetbit(x, y) 	((x) &= (~(y)))
@@ -17,7 +22,17 @@ typedef uint8_t flag_t;
 // e.g. if(test(status, ANSI)) { /*do ANSI stuff*/ }
 #define test(x, y)	(((x) & (y)) != 0)
 
-// Only to be used for hardcoded, non-allocated arrays
+// Only to be used for arrays on the stack
 #define nelems(x)	(sizeof(x) / sizeof((x)[0]))
+
+// No XOR swaps here...
+inline void swap(u32 *first, u32 *second)
+{
+	if(first == second) return;
+
+	u32 temp = *first;
+	*first = *second;
+	*second = temp;
+}
 
 #endif

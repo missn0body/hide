@@ -329,21 +329,30 @@ static const u32 ORIG_S[4][256] =
 
 static u32 F(BLOWFISH_CTX *ctx, u32 x)
 {
-	u16 a, b, c, d;
-	u32 y;
+	/*
+		Or alternatively:
 
-   	d = (u16)(x & 0xFF);
-   	x >>= 8;
-   	c = (u16)(x & 0xFF);
-   	x >>= 8;
-   	b = (u16)(x & 0xFF);
-   	x >>= 8;
-   	a = (u16)(x & 0xFF);
-   	y = ctx->S[0][a] + ctx->S[1][b];
-   	y = y ^ ctx->S[2][c];
-   	y = y + ctx->S[3][d];
+		u16 a, b, c, d;
+		u32 y;
 
-   	return y;
+	   	d = (u16)(x & 0xFF);
+	   	x >>= 8;
+	   	c = (u16)(x & 0xFF);
+	   	x >>= 8;
+	   	b = (u16)(x & 0xFF);
+	   	x >>= 8;
+	   	a = (u16)(x & 0xFF);
+	   	y = ctx->S[0][a] + ctx->S[1][b];
+	   	y = y ^ ctx->S[2][c];
+	   	y = y + ctx->S[3][d];
+
+	   	return y;
+
+		as Paul Kocher original wrote.
+	*/
+
+	u32 h = ctx->S[0][x >> 24] + ctx->S[1][x >> 16 & 0xff];
+   	return ( h ^ ctx->S[2][x >> 8 & 0xff] ) + ctx->S[3][x & 0xff];
 }
 
 
@@ -351,7 +360,6 @@ void Blowfish_Encrypt(BLOWFISH_CTX *ctx, u32 *xl, u32 *xr)
 {
   	u32 Xl;
   	u32 Xr;
-  	u32 temp;
   	u16 i;		// originally a short type
 
   	Xl = *xl;
@@ -362,14 +370,10 @@ void Blowfish_Encrypt(BLOWFISH_CTX *ctx, u32 *xl, u32 *xr)
     		Xl = Xl ^ ctx->P[i];
     		Xr = F(ctx, Xl) ^ Xr;
 
-    		temp = Xl;
-    		Xl = Xr;
-    		Xr = temp;
+		swap(&Xl, &Xr);
   	}
 
-  	temp = Xl;
-  	Xl = Xr;
-  	Xr = temp;
+	swap(&Xl, &Xr);
 
   	Xr = Xr ^ ctx->P[N];
   	Xl = Xl ^ ctx->P[N + 1];
@@ -383,7 +387,6 @@ void Blowfish_Decrypt(BLOWFISH_CTX *ctx, u32 *xl, u32 *xr)
 {
   	u32 Xl;
   	u32 Xr;
-  	u32 temp;
   	u16 i;		// originally a short type
 
   	Xl = *xl;
@@ -395,15 +398,11 @@ void Blowfish_Decrypt(BLOWFISH_CTX *ctx, u32 *xl, u32 *xr)
     		Xr = F(ctx, Xl) ^ Xr;
 
     		/* Exchange Xl and Xr */
-    		temp = Xl;
-    		Xl = Xr;
-    		Xr = temp;
+		swap(&Xl, &Xr);
   	}
 
   	/* Exchange Xl and Xr */
-  	temp = Xl;
-  	Xl = Xr;
-  	Xr = temp;
+	swap(&Xl, &Xr);
 
   	Xr = Xr ^ ctx->P[1];
   	Xl = Xl ^ ctx->P[0];

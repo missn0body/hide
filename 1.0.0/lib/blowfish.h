@@ -1,3 +1,6 @@
+#ifndef hide__blowfish__h
+#define hide__blowfish__h
+
 /*
 	blowfish.h:  Header file for blowfish.c
 
@@ -19,6 +22,7 @@
 */
 
 #include "includes.h"
+#include "util.h"
 
 /*
 	Paul Kocher's code, along with Blowfish in general, was originally meant for
@@ -28,9 +32,6 @@
 	implementation-defined. using stdint.h typedefs makes the compiler play nice,
 	and also clears up any vaugeness.
 */
-
-typedef uint32_t u32;
-typedef uint16_t u16;
 
 typedef struct
 {
@@ -50,3 +51,5 @@ u32 	compress	(unsigned char *input);
 char   *expand		(u32 input);
 //u32    *compressStr	(unsigned char *input);
 //char   *expandStr	(u32 *input);
+
+#endif
