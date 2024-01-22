@@ -9,7 +9,7 @@
 	version 2.1 of the License, or (at your option) any later version.
 	This library is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
 	Lesser General Public License for more details.
 	You should have received a copy of the GNU Lesser General Public
 	License along with this library; if not, write to the Free Software
@@ -18,7 +18,7 @@
 	COMMENTS ON USING THIS CODE:
 
 	Normal usage is as follows:
-		[1] Allocate a BLOWFISH_CTX. (It may be too big for the stack.)
+		[1] Allocate a BLOWFISH_CTX.(It may be too big for the stack.)
 	   	[2] Call Blowfish_Init with a pointer to your BLOWFISH_CTX, a pointer to
 	       	    the key, and the number of bytes in the key.
 	   	[3] To encrypt a 64-bit block, call Blowfish_Encrypt with a pointer to
@@ -39,14 +39,14 @@
 		    application. (If you don't know what CBC mode is, see Warning #7.)
 	Warning #6: This code is susceptible to timing attacks.
 	Warning #7: Security engineering is risky and non-intuitive. Have someone
-		    check your work.  If you don't know what you are doing, get help.
+		    check your work. If you don't know what you are doing, get help.
 
 
 	This is code is fast enough for most applications, but is not optimized for
 	speed.
 
 	If you require this code under a license other than LGPL, please ask. (I
-	can be located using your favorite search engine.)  Unfortunately, I do not
+	can be located using your favorite search engine.) Unfortunately, I do not
 	have time to provide unpaid support for everyone who uses this code.
 
 	                                             -- Paul Kocher
@@ -484,43 +484,67 @@ void Blowfish_Zero(BLOWFISH_CTX *ctx)
 	memset(ctx, 0, sizeof(BLOWFISH_CTX));
 }
 
-u32 compress(unsigned char *input)
+void compress(unsigned char *input, u32 *buffer)
 {
-	u32 returnValue = 0;
-	if(strlen((const char *)input) < 4 || input[4] == '\0') return returnValue;
+	if(input == nullptr || buffer == nullptr) return;
 
+	u32 returnValue = 0;
 	for(size_t i = 0; i < 4; i++)
 	{
-		if(input[i] == '\0') return returnValue;
+		if(input[i] == '\0') return;
 		returnValue = (returnValue << 8) | input[i];
 	}
 
-	return returnValue;
+	*buffer = returnValue;
+	return;
 }
 
-// Remember to free the output of this function!
-char *expand(u32 input)
+void expand(u32 input, char *buffer)
 {
-	char *returnValue = malloc(5);
-	if(returnValue == nullptr) return nullptr;
+	if(input == 0 || buffer == nullptr) return;
 
-	returnValue[0] = (unsigned char)((input & 0xff000000) >> 24);
-	returnValue[1] = (unsigned char)((input & 0x00ff0000) >> 16);
-	returnValue[2] = (unsigned char)((input & 0x0000ff00) >> 8);
-	returnValue[3] = (unsigned char) (input & 0x000000ff);
-	returnValue[4] = '\0';
+	buffer[0] = (unsigned char)((input & 0xff000000) >> 24);
+	buffer[1] = (unsigned char)((input & 0x00ff0000) >> 16);
+	buffer[2] = (unsigned char)((input & 0x0000ff00) >> 8);
+	buffer[3] = (unsigned char) (input & 0x000000ff);
+	buffer[4] = '\0';
 
-	return returnValue;
+	return;
 }
 
-/*
-u32 *compressStr(unsigned char *input)
+int compressStr(char *input, u32 *buffer)
 {
-	// TODO
+	if(input == nullptr || buffer == nullptr) return 0;
+
+	char chunk[5] = {0};
+	for(size_t i = 0, j = 0; i < strlen(input); i += 4, j++)
+	{
+		int writelen = sprintf(chunk, "%.4s", input + i);
+		if(writelen < 4) strncat(chunk, "0000", 4 - writelen);
+
+		compress((unsigned char *)chunk, &buffer[j]);
+	}
+
+	int chunknum = (strlen(input) / 4);
+	return (strlen(input) % 4 == 0) ? chunknum : chunknum + 1;
 }
 
-char *expandStr(u32 *input)
+void expandStr(u32 *input, int length, char *buffer)
 {
-	// TODO
+	if(input == nullptr || buffer == nullptr) return;
+	if(length <= 0) return;
+
+	buffer[0] = '\0';
+
+	char chunk[5];
+	for(int i = 0; i < length; i++)
+	{
+		memset(chunk, '\0', 5);
+		if(input[i] == '\0') return;
+
+		expand(input[i], chunk);
+		strncat(buffer, chunk, 5);
+	}
+
+	return;
 }
-*/

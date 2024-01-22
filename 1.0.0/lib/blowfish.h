@@ -41,15 +41,15 @@ typedef struct
 } BLOWFISH_CTX;
 
 // Blowfish functions
-void Blowfish_Init	(BLOWFISH_CTX *ctx, unsigned char *key, int keyLen);
-void Blowfish_Encrypt	(BLOWFISH_CTX *ctx, u32 *xl, u32 *xr);
-void Blowfish_Decrypt	(BLOWFISH_CTX *ctx, u32 *xl, u32 *xr);
-void Blowfish_Zero	(BLOWFISH_CTX *ctx);
+void 	Blowfish_Init		(BLOWFISH_CTX *ctx, unsigned char *key, int keyLen);
+void 	Blowfish_Encrypt	(BLOWFISH_CTX *ctx, u32 *xl, u32 *xr);
+void 	Blowfish_Decrypt	(BLOWFISH_CTX *ctx, u32 *xl, u32 *xr);
+void 	Blowfish_Zero		(BLOWFISH_CTX *ctx);
 
 // Text encoding/decoding functions
-u32 	compress	(unsigned char *input);
-char   *expand		(u32 input);
-//u32    *compressStr	(unsigned char *input);
-//char   *expandStr	(u32 *input);
+void	compress		(unsigned char *input, u32* buffer);
+void   	expand			(u32 input, char *buffer);
+int     compressStr		(char *input, u32 *buffer);
+void	expandStr		(u32 *input, int length, char *buffer);
 
 #endif

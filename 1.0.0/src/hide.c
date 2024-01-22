@@ -1,5 +1,7 @@
 /*
-	blowfish_test.c:  Test file for blowfish.c
+	hide.c:  main function for the "hide" utility. Contains code
+		 related to "blowfish_test.c" as written by Paul Kocher.
+		 The notice below belongs to "blowfish_test.c"
 
 	Copyright (C) 1997 by Paul Kocher
 
@@ -9,7 +11,7 @@
 	version 2.1 of the License, or (at your option) any later version.
 	This library is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
 	Lesser General Public License for more details.
 	You should have received a copy of the GNU Lesser General Public
 	License along with this library; if not, write to the Free Software
@@ -18,10 +20,14 @@
 
 #include "../lib/blowfish.h"
 
-int main(void)
+int main(int argc, char *argv[])
 {
-	u32 L = 1, R = 2;
+	if(argc < 2 || !*argv[1]) return -1;
 
+	/*
+	// BLOWFISH ENCRYPT, DECRYPT, AND ZERO TESTS
+
+	u32 L = 1, R = 2;
   	BLOWFISH_CTX *ctx = malloc(sizeof(BLOWFISH_CTX));
 	if(ctx == nullptr) return -1;
 
@@ -39,5 +45,21 @@ int main(void)
 
 	Blowfish_Zero(ctx);
 	free(ctx);
+	*/
+
+	// COMPRESS STRING AND EXPAND STRING TESTS
+	u32 comp[10];
+	int end = compressStr(argv[1], comp);
+
+	for(int i = 0; i < end; i++)
+	{
+		printf("%08X\n", comp[i]);
+	}
+
+	char exp[41];
+	expandStr(comp, 10, exp);
+
+	printf("%s\n", exp);
+
 	return 0;
 }
