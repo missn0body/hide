@@ -51,5 +51,6 @@ void	compress		(unsigned char *input, u32* buffer);
 void   	expand			(u32 input, char *buffer);
 int     compressStr		(char *input, u32 *buffer);
 void	expandStr		(u32 *input, int length, char *buffer);
+void	stripStr		(char *input);
 
 #endif

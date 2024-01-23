@@ -1,5 +1,8 @@
 /*
-	blowfish.c:  C implementation of the Blowfish algorithm.
+	blowfish.c:  C implementation of the Blowfish algorithm,
+		     with some added and modified code by anson.
+		     The notice below belongs to the original
+		     "blowfish.c".
 
 	Copyright (C) 1997 by Paul Kocher
 
@@ -519,12 +522,21 @@ int compressStr(char *input, u32 *buffer)
 	char chunk[5] = {0};
 	for(size_t i = 0, j = 0; i < strlen(input); i += 4, j++)
 	{
+		// The prinf format string can set a max width of
+		// a string, in this case being 4, and the return
+		// value usually being the number of characters
+		// written...
 		int writelen = sprintf(chunk, "%.4s", input + i);
+		// ...which can be used to determine if a chunk
+		// needs padding
 		if(writelen < 4) strncat(chunk, "0000", 4 - writelen);
-
+		// Finally, use the chunk we just created as a
+		// function input
 		compress((unsigned char *)chunk, &buffer[j]);
 	}
 
+	// This function returns the number of u32 values that it
+	// has written, for use in iterating through "buffer"
 	int chunknum = (strlen(input) / 4);
 	return (strlen(input) % 4 == 0) ? chunknum : chunknum + 1;
 }
@@ -534,17 +546,40 @@ void expandStr(u32 *input, int length, char *buffer)
 	if(input == nullptr || buffer == nullptr) return;
 	if(length <= 0) return;
 
+	// strncat won't play nice if the input isn't
+	// null-terminated
 	buffer[0] = '\0';
 
 	char chunk[5];
 	for(int i = 0; i < length; i++)
 	{
+		// Reset the captured chunks for every cycle
 		memset(chunk, '\0', 5);
+		// and check if we've passed every character
 		if(input[i] == '\0') return;
 
+		// Populate designated chunk with its expanded
+		// data, and attach it to the "buffer" that
+		// is given to us
 		expand(input[i], chunk);
 		strncat(buffer, chunk, 5);
 	}
+
+	return;
+}
+
+void stripStr(char *input)
+{
+	if(strlen(input) == 0 || input == nullptr) return;
+
+	int stripcount = 0, i;
+	for(i = strlen(input) - 1; i >= 0; i--)
+	{
+		if(input[i] != '0') break;
+	}
+
+	stripcount = (strlen(input) - i) - 1;
+	memset(input + i + 1, '\0', stripcount);
 
 	return;
 }
