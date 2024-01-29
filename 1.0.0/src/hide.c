@@ -38,8 +38,7 @@ void showUsage(void)
 
 int main(int argc, char *argv[])
 {
-	_Assert(argc >= 2 || argv[1] != nullptr, "too few arguments, \"--help\"");
-	int c;
+	_Assert(argc >= 2 || argv[1] != nullptr, "too few arguments. try \"--help\"");
 
 	/*
 	// BLOWFISH ENCRYPT, DECRYPT, AND ZERO TESTS
@@ -63,6 +62,7 @@ int main(int argc, char *argv[])
 	Blowfish_Zero(ctx);
 	free(ctx);
 	*/
+
 	/*
 	// COMPRESS STRING AND EXPAND STRING TESTS
 	u32 comp[10];
@@ -82,14 +82,21 @@ int main(int argc, char *argv[])
 	printf("%s\n", exp);
 	*/
 
-	// Iterate through all arguments sent, while making sure
-        // that they start with a dash.
+	char input[256] = {0}, key[56] = {0}, *programName = argv[0];
+	int c;
+
+	// Iterate through all arguments sent, character by character
         while(--argc > 0 && (*++argv)[0] != '\0')
         {
 		if((*argv)[0] != '-')
 		{
-			printf("huh? : \"%s\"\n", *argv);
-			printf("next : \"%s\"\n", *(argv + 1));
+			if(key[0] != '\0')
+			{
+				_NoteArg(programName, "discarded program input", *argv);
+				continue;
+			}
+
+			strncpy((input[0] == '\0') ? input : key, *argv, (input[0] == '\0') ? sizeof(input) : sizeof(key));
 		}
 
 		if((*argv)[0] == '-')
@@ -127,5 +134,37 @@ int main(int argc, char *argv[])
 		}
         }
 
+	_Assert(input[0] != '\0', "no plaintext recieved");
+	_Assert(key[0] != '\0', "no key recieved");
+
+	printf("encrypting \"%s\" with key \"%s\"...\n", input, key);
+
+	// Compressing the given string into some length of 32-bit blocks
+	u32 compressedInput[128] = {0}, first = 0, second = 0;
+	int compLen = compressStr(input, compressedInput);
+
+	// Encryption!
+	BLOWFISH_CTX *context = malloc(sizeof(BLOWFISH_CTX));
+	_Assert(context != NULL, "memory fault");
+
+	Blowfish_Init(context, (unsigned char *)key, strlen(key));
+	for(int i = 0; i < compLen; i += 2)
+	{
+		first = compressedInput[i];
+		second = compressedInput[i + 1];
+
+		if(second == 0 || (i + 1) >= compLen) second = 0x9BADFACE;
+
+		Blowfish_Encrypt(context, &first, &second);
+
+		if(test(status, HEXMODE)) 	printf("%X %X", first, second);
+		else 				printf("%u %u", first, second);
+	}
+
+	putchar('\n');
+
+	// Clean up
+	Blowfish_Zero(context);
+	free(context);
 	return 0;
 }
